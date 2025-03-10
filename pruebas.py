@@ -1,5 +1,5 @@
-import sqlite3
 import json
+import sqlite3
 
 # Cargar el archivo JSON
 with open('datos.json', 'r', encoding='utf-8') as file:
