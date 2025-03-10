@@ -12,16 +12,17 @@ cursor = conn.cursor()
 # Crear las tablas
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS clientes (
-    id_cli TEXT PRIMARY KEY,
+    id_cli INTEGER PRIMARY KEY,
     nombre TEXT,
     telefono TEXT,
     provincia TEXT
 )
 ''')
 
+
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS empleados (
-    id_emp TEXT PRIMARY KEY,
+    id_emp INTEGER PRIMARY KEY,
     nombre TEXT,
     nivel INTEGER,
     fecha_contrato TEXT
@@ -30,7 +31,7 @@ CREATE TABLE IF NOT EXISTS empleados (
 
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS tipos_incidentes (
-    id_inci TEXT PRIMARY KEY,
+    id_inci INTEGER PRIMARY KEY,
     nombre TEXT
 )
 ''')
@@ -99,6 +100,8 @@ for ticket in data['tickets_emitidos']:
         INSERT INTO contactos_con_empleados (id_ticket, id_emp, fecha, tiempo)
         VALUES (?, ?, ?, ?)
         ''', (id_ticket, contacto['id_emp'], contacto['fecha'], contacto['tiempo']))
+
+
 
 # Guardar los cambios y cerrar la conexión
 conn.commit()
