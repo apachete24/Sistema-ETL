@@ -1,5 +1,6 @@
 import sqlite3
 import json
+import pandas as pd
 
 # Cargar el archivo JSON
 with open('datos.json', 'r', encoding='utf-8') as file:
@@ -102,6 +103,50 @@ for ticket in data['tickets_emitidos']:
 
 # Guardar los cambios y cerrar la conexión
 conn.commit()
-conn.close()
 
-print("Base de datos creada y datos importados exitosamente.")
+# Número de muestras totales
+df_tickets = pd.read_sql("SELECT * FROM Tickets", conn)
+num_muestras = df_tickets.shape[0]
+
+# Media y desviación estándar de valoración >=5
+df_filtrado = df_tickets[df_tickets["satisfaccion_cliente"] >= 5]
+media_valoracion = df_filtrado["satisfaccion_cliente"].mean()
+std_valoracion = df_filtrado["satisfaccion_cliente"].std()
+
+# Media y desviación de incidentes por cliente
+incidentes_por_cliente = df_tickets.groupby("cliente").size()
+media_incidentes = incidentes_por_cliente.mean()
+std_incidentes = incidentes_por_cliente.std()
+
+# Tiempo de resolución (días entre apertura y cierre)
+df_tickets["tiempo_resolucion"] = (
+    pd.to_datetime(df_tickets["fecha_cierre"]) 
+    - pd.to_datetime(df_tickets["fecha_apertura"])
+).dt.days
+min_dias = df_tickets["tiempo_resolucion"].min()
+max_dias = df_tickets["tiempo_resolucion"].max()
+
+# Horas trabajadas por empleado
+df_horas = pd.read_sql("""
+    SELECT id_emp, SUM(tiempo) AS total_horas 
+    FROM Contactos_Empleados 
+    GROUP BY id_emp
+""", conn)
+min_horas = df_horas["total_horas"].min()
+max_horas = df_horas["total_horas"].max()
+
+# Resultados finales
+resultados = {
+    "Número de muestras": num_muestras,
+    "Media (valoración >=5)": media_valoracion,
+    "Desviación (valoración >=5)": std_valoracion,
+    "Media (incidentes/cliente)": media_incidentes,
+    "Desviación (incidentes/cliente)": std_incidentes,
+    "Mínimo días resolución": min_dias,
+    "Máximo días resolución": max_dias,
+    "Mínimo horas/empleado": min_horas,
+    "Máximo horas/empleado": max_horas
+}
+
+print(resultados)
+conn.close()
