@@ -10,7 +10,16 @@ with open('datos.json', 'r', encoding='utf-8') as file:
 conn = sqlite3.connect('etl_database.db')
 cursor = conn.cursor()
 
-# Crear las tablas
+# ------------------------------------------
+# Paso 1: Eliminar tablas existentes (opcional, para pruebas)
+# cursor.execute("DROP TABLE IF EXISTS contactos_con_empleados")
+# cursor.execute("DROP TABLE IF EXISTS tickets_emitidos")
+# cursor.execute("DROP TABLE IF EXISTS tipos_incidentes")
+# cursor.execute("DROP TABLE IF EXISTS empleados")
+# cursor.execute("DROP TABLE IF EXISTS clientes")
+# ------------------------------------------
+
+# Crear las tablas (¡nombres corregidos!)
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS clientes (
     id_cli TEXT PRIMARY KEY,
@@ -62,63 +71,70 @@ CREATE TABLE IF NOT EXISTS contactos_con_empleados (
 )
 ''')
 
-# Insertar datos en la tabla `clientes`
+# Insertar datos en las tablas
+# ------------------------------------------
+# Tabla Clientes
 for cliente in data['clientes']:
     cursor.execute('''
-    INSERT INTO clientes (id_cli, nombre, telefono, provincia)
+    INSERT OR IGNORE INTO clientes (id_cli, nombre, telefono, provincia)
     VALUES (?, ?, ?, ?)
     ''', (cliente['id_cli'], cliente['nombre'], cliente['telefono'], cliente['provincia']))
 
-# Insertar datos en la tabla `empleados`
+# Tabla Empleados
 for empleado in data['empleados']:
     cursor.execute('''
-    INSERT INTO empleados (id_emp, nombre, nivel, fecha_contrato)
+    INSERT OR IGNORE INTO empleados (id_emp, nombre, nivel, fecha_contrato)
     VALUES (?, ?, ?, ?)
     ''', (empleado['id_emp'], empleado['nombre'], empleado['nivel'], empleado['fecha_contrato']))
 
-# Insertar datos en la tabla `tipos_incidentes`
+# Tabla Tipos_Incidentes
 for tipo_incidente in data['tipos_incidentes']:
     cursor.execute('''
-    INSERT INTO tipos_incidentes (id_inci, nombre)
+    INSERT OR IGNORE INTO tipos_incidentes (id_inci, nombre)
     VALUES (?, ?)
     ''', (tipo_incidente['id_inci'], tipo_incidente['nombre']))
 
-# Insertar datos en la tabla `tickets_emitidos` y `contactos_con_empleados`
+# Tabla Tickets_Emitidos y Contactos_Empleados
 for ticket in data['tickets_emitidos']:
     cursor.execute('''
     INSERT INTO tickets_emitidos (cliente, fecha_apertura, fecha_cierre, es_mantenimiento, satisfaccion_cliente, tipo_incidencia)
     VALUES (?, ?, ?, ?, ?, ?)
-    ''', (ticket['cliente'], ticket['fecha_apertura'], ticket['fecha_cierre'],
-          int(ticket['es_mantenimiento']), ticket['satisfaccion_cliente'], ticket['tipo_incidencia']))
-
-    # Obtener el último ID insertado en `tickets_emitidos`
+    ''', (
+        ticket['cliente'],
+        ticket['fecha_apertura'],
+        ticket['fecha_cierre'],
+        int(ticket['es_mantenimiento']),
+        ticket['satisfaccion_cliente'],
+        ticket['tipo_incidencia']
+    ))
+    
     id_ticket = cursor.lastrowid
-
-    # Insertar los contactos con empleados
+    
     for contacto in ticket['contactos_con_empleados']:
         cursor.execute('''
         INSERT INTO contactos_con_empleados (id_ticket, id_emp, fecha, tiempo)
         VALUES (?, ?, ?, ?)
         ''', (id_ticket, contacto['id_emp'], contacto['fecha'], contacto['tiempo']))
 
-# Guardar los cambios y cerrar la conexión
 conn.commit()
 
-# Número de muestras totales
-df_tickets = pd.read_sql("SELECT * FROM Tickets", conn)
+# ------------------------------------------
+# Cálculos con Pandas (¡nombres de tablas corregidos!)
+# 1. Número de muestras totales
+df_tickets = pd.read_sql("SELECT * FROM tickets_emitidos", conn)  # <- Nombre exacto
 num_muestras = df_tickets.shape[0]
 
-# Media y desviación estándar de valoración >=5
+# 2. Media y desviación estándar de valoración >=5
 df_filtrado = df_tickets[df_tickets["satisfaccion_cliente"] >= 5]
 media_valoracion = df_filtrado["satisfaccion_cliente"].mean()
 std_valoracion = df_filtrado["satisfaccion_cliente"].std()
 
-# Media y desviación de incidentes por cliente
+# 3. Media y desviación de incidentes por cliente
 incidentes_por_cliente = df_tickets.groupby("cliente").size()
 media_incidentes = incidentes_por_cliente.mean()
 std_incidentes = incidentes_por_cliente.std()
 
-# Tiempo de resolución (días entre apertura y cierre)
+# 4. Tiempo de resolución (días entre apertura y cierre)
 df_tickets["tiempo_resolucion"] = (
     pd.to_datetime(df_tickets["fecha_cierre"]) 
     - pd.to_datetime(df_tickets["fecha_apertura"])
@@ -126,10 +142,10 @@ df_tickets["tiempo_resolucion"] = (
 min_dias = df_tickets["tiempo_resolucion"].min()
 max_dias = df_tickets["tiempo_resolucion"].max()
 
-# Horas trabajadas por empleado
+# 5. Horas trabajadas por empleado
 df_horas = pd.read_sql("""
     SELECT id_emp, SUM(tiempo) AS total_horas 
-    FROM Contactos_Empleados 
+    FROM contactos_con_empleados  -- <- Nombre exacto
     GROUP BY id_emp
 """, conn)
 min_horas = df_horas["total_horas"].min()
@@ -138,15 +154,18 @@ max_horas = df_horas["total_horas"].max()
 # Resultados finales
 resultados = {
     "Número de muestras": num_muestras,
-    "Media (valoración >=5)": media_valoracion,
-    "Desviación (valoración >=5)": std_valoracion,
-    "Media (incidentes/cliente)": media_incidentes,
-    "Desviación (incidentes/cliente)": std_incidentes,
+    "Media (valoración >=5)": round(media_valoracion, 2),
+    "Desviación (valoración >=5)": round(std_valoracion, 2),
+    "Media (incidentes/cliente)": round(media_incidentes, 2),
+    "Desviación (incidentes/cliente)": round(std_incidentes, 2),
     "Mínimo días resolución": min_dias,
     "Máximo días resolución": max_dias,
-    "Mínimo horas/empleado": min_horas,
-    "Máximo horas/empleado": max_horas
+    "Mínimo horas/empleado": round(min_horas, 2),
+    "Máximo horas/empleado": round(max_horas, 2)
 }
 
-print(resultados)
+print("Resultados:")
+for k, v in resultados.items():
+    print(f"- {k}: {v}")
+
 conn.close()
