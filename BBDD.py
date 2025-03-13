@@ -118,10 +118,9 @@ for ticket in data['tickets_emitidos']:
 
 conn.commit()
 
-# ------------------------------------------
 # Cálculos con Pandas (¡nombres de tablas corregidos!)
 # 1. Número de muestras totales
-df_tickets = pd.read_sql("SELECT * FROM tickets_emitidos", conn)  # <- Nombre exacto
+df_tickets = pd.read_sql("SELECT * FROM tickets_emitidos", conn)
 num_muestras = df_tickets.shape[0]
 
 # 2. Media y desviación estándar de valoración >=5
@@ -142,26 +141,48 @@ df_tickets["tiempo_resolucion"] = (
 min_dias = df_tickets["tiempo_resolucion"].min()
 max_dias = df_tickets["tiempo_resolucion"].max()
 
-# 5. Horas trabajadas por empleado
+# 5. Media y desviación de horas por incidente (NUEVO)
+df_horas_por_incidente = pd.read_sql("""
+    SELECT id_ticket, SUM(tiempo) AS total_horas 
+    FROM contactos_con_empleados  
+    GROUP BY id_ticket
+""", conn)
+media_horas_incidente = df_horas_por_incidente["total_horas"].mean()
+std_horas_incidente = df_horas_por_incidente["total_horas"].std()
+
+# 6. Horas trabajadas por empleado
 df_horas = pd.read_sql("""
     SELECT id_emp, SUM(tiempo) AS total_horas 
-    FROM contactos_con_empleados  -- <- Nombre exacto
+    FROM contactos_con_empleados  
     GROUP BY id_emp
 """, conn)
 min_horas = df_horas["total_horas"].min()
 max_horas = df_horas["total_horas"].max()
 
-# Resultados finales
+# 7. Incidentes atendidos por empleado (NUEVO)
+df_incidentes_empleado = pd.read_sql("""
+    SELECT id_emp, COUNT(DISTINCT id_ticket) AS total_incidentes 
+    FROM contactos_con_empleados  
+    GROUP BY id_emp
+""", conn)
+min_incidentes_emp = df_incidentes_empleado["total_incidentes"].min()
+max_incidentes_emp = df_incidentes_empleado["total_incidentes"].max()
+
+# Resultados finales (actualizado)
 resultados = {
     "Número de muestras": num_muestras,
     "Media (valoración >=5)": round(media_valoracion, 2),
     "Desviación (valoración >=5)": round(std_valoracion, 2),
     "Media (incidentes/cliente)": round(media_incidentes, 2),
     "Desviación (incidentes/cliente)": round(std_incidentes, 2),
+    "Media horas/incidente": round(media_horas_incidente, 2),        # Nuevo
+    "Desviación horas/incidente": round(std_horas_incidente, 2),     # Nuevo
     "Mínimo días resolución": min_dias,
     "Máximo días resolución": max_dias,
     "Mínimo horas/empleado": round(min_horas, 2),
-    "Máximo horas/empleado": round(max_horas, 2)
+    "Máximo horas/empleado": round(max_horas, 2),
+    "Mínimo incidentes/empleado": min_incidentes_emp,               # Nuevo
+    "Máximo incidentes/empleado": max_incidentes_emp                 # Nuevo
 }
 
 print("Resultados:")
