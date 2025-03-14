@@ -19,15 +19,14 @@ cursor = conn.cursor()
 # cursor.execute("DROP TABLE IF EXISTS clientes")
 # ------------------------------------------
 
-# Crear las tablas (¡nombres corregidos!)
+# Creación de tablas
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS clientes (
     id_cli TEXT PRIMARY KEY,
     nombre TEXT,
     telefono TEXT,
     provincia TEXT
-)
-''')
+)''')
 
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS empleados (
@@ -35,15 +34,13 @@ CREATE TABLE IF NOT EXISTS empleados (
     nombre TEXT,
     nivel INTEGER,
     fecha_contrato TEXT
-)
-''')
+)''')
 
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS tipos_incidentes (
     id_inci TEXT PRIMARY KEY,
     nombre TEXT
-)
-''')
+)''')
 
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS tickets_emitidos (
@@ -56,8 +53,7 @@ CREATE TABLE IF NOT EXISTS tickets_emitidos (
     tipo_incidencia INTEGER,
     FOREIGN KEY (cliente) REFERENCES clientes(id_cli),
     FOREIGN KEY (tipo_incidencia) REFERENCES tipos_incidentes(id_inci)
-)
-''')
+)''')
 
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS contactos_con_empleados (
@@ -68,51 +64,40 @@ CREATE TABLE IF NOT EXISTS contactos_con_empleados (
     tiempo REAL,
     FOREIGN KEY (id_ticket) REFERENCES tickets_emitidos(id_ticket),
     FOREIGN KEY (id_emp) REFERENCES empleados(id_emp)
-)
-''')
+)''')
 
-# Insertar datos en las tablas
-# ------------------------------------------
+# Inserción de datos en las tablas clientes, empleados y tipos_incidentes
 # Tabla Clientes
 for cliente in data['clientes']:
-    cursor.execute('''
-    INSERT OR IGNORE INTO clientes (id_cli, nombre, telefono, provincia)
+    cursor.execute('''INSERT OR IGNORE INTO clientes (id_cli, nombre, telefono, provincia)
     VALUES (?, ?, ?, ?)
     ''', (cliente['id_cli'], cliente['nombre'], cliente['telefono'], cliente['provincia']))
 
 # Tabla Empleados
 for empleado in data['empleados']:
-    cursor.execute('''
-    INSERT OR IGNORE INTO empleados (id_emp, nombre, nivel, fecha_contrato)
+    cursor.execute('''INSERT OR IGNORE INTO empleados (id_emp, nombre, nivel, fecha_contrato)
     VALUES (?, ?, ?, ?)
     ''', (empleado['id_emp'], empleado['nombre'], empleado['nivel'], empleado['fecha_contrato']))
 
 # Tabla Tipos_Incidentes
 for tipo_incidente in data['tipos_incidentes']:
-    cursor.execute('''
-    INSERT OR IGNORE INTO tipos_incidentes (id_inci, nombre)
+    cursor.execute('''INSERT OR IGNORE INTO tipos_incidentes (id_inci, nombre)
     VALUES (?, ?)
     ''', (tipo_incidente['id_inci'], tipo_incidente['nombre']))
 
-# Tabla Tickets_Emitidos y Contactos_Empleados
+# Tabla Tickets_Emitidos y Contactos_Empleados, con inserción de IDs automáticos
 for ticket in data['tickets_emitidos']:
-    cursor.execute('''
-    INSERT INTO tickets_emitidos (cliente, fecha_apertura, fecha_cierre, es_mantenimiento, satisfaccion_cliente, tipo_incidencia)
+    cursor.execute('''INSERT INTO tickets_emitidos (cliente, fecha_apertura, fecha_cierre, es_mantenimiento, satisfaccion_cliente, tipo_incidencia)
     VALUES (?, ?, ?, ?, ?, ?)
     ''', (
-        ticket['cliente'],
-        ticket['fecha_apertura'],
-        ticket['fecha_cierre'],
-        int(ticket['es_mantenimiento']),
-        ticket['satisfaccion_cliente'],
-        ticket['tipo_incidencia']
+        ticket['cliente'], ticket['fecha_apertura'], ticket['fecha_cierre'],
+        int(ticket['es_mantenimiento']), ticket['satisfaccion_cliente'], ticket['tipo_incidencia']
     ))
     
-    id_ticket = cursor.lastrowid
+    id_ticket = cursor.lastrowid #ID automático
     
     for contacto in ticket['contactos_con_empleados']:
-        cursor.execute('''
-        INSERT INTO contactos_con_empleados (id_ticket, id_emp, fecha, tiempo)
+        cursor.execute('''INSERT INTO contactos_con_empleados (id_ticket, id_emp, fecha, tiempo)
         VALUES (?, ?, ?, ?)
         ''', (id_ticket, contacto['id_emp'], contacto['fecha'], contacto['tiempo']))
 
