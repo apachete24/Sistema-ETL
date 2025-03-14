@@ -151,7 +151,7 @@ df_incidentes_empleado = pd.read_sql("""
 min_incidentes_emp = df_incidentes_empleado["total_incidentes"].min()
 max_incidentes_emp = df_incidentes_empleado["total_incidentes"].max()
 
-# Resultados finales (actualizado)
+# Resultados finales 
 resultados = {
     "Número de muestras": num_muestras,
     "Media (valoración >=5)": round(media_valoracion, 2),
