@@ -10,14 +10,12 @@ with open('datos.json', 'r', encoding='utf-8') as file:
 conn = sqlite3.connect('etl_database.db')
 cursor = conn.cursor()
 
-# ------------------------------------------
-# Paso 1: Eliminar tablas existentes (opcional, para pruebas)
-# cursor.execute("DROP TABLE IF EXISTS contactos_con_empleados")
-# cursor.execute("DROP TABLE IF EXISTS tickets_emitidos")
-# cursor.execute("DROP TABLE IF EXISTS tipos_incidentes")
-# cursor.execute("DROP TABLE IF EXISTS empleados")
-# cursor.execute("DROP TABLE IF EXISTS clientes")
-# ------------------------------------------
+# Para evitar duplicados de los resultados siempre se borra antes de ejecutar este script
+cursor.execute("DROP TABLE IF EXISTS contactos_con_empleados")
+cursor.execute("DROP TABLE IF EXISTS tickets_emitidos")
+cursor.execute("DROP TABLE IF EXISTS tipos_incidentes")
+cursor.execute("DROP TABLE IF EXISTS empleados")
+cursor.execute("DROP TABLE IF EXISTS clientes")
 
 # Creación de tablas
 cursor.execute('''
