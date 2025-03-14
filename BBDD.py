@@ -103,7 +103,7 @@ for ticket in data['tickets_emitidos']:
 
 conn.commit()
 
-# Cálculos con Pandas (¡nombres de tablas corregidos!)
+# CÁLCULOS CON PANDAS
 # 1. Número de muestras totales
 df_tickets = pd.read_sql("SELECT * FROM tickets_emitidos", conn)
 num_muestras = df_tickets.shape[0]
@@ -118,15 +118,7 @@ incidentes_por_cliente = df_tickets.groupby("cliente").size()
 media_incidentes = incidentes_por_cliente.mean()
 std_incidentes = incidentes_por_cliente.std()
 
-# 4. Tiempo de resolución (días entre apertura y cierre)
-df_tickets["tiempo_resolucion"] = (
-    pd.to_datetime(df_tickets["fecha_cierre"]) 
-    - pd.to_datetime(df_tickets["fecha_apertura"])
-).dt.days
-min_dias = df_tickets["tiempo_resolucion"].min()
-max_dias = df_tickets["tiempo_resolucion"].max()
-
-# 5. Media y desviación de horas por incidente (NUEVO)
+# 4. Media y desviación de horas por incidente 
 df_horas_por_incidente = pd.read_sql("""
     SELECT id_ticket, SUM(tiempo) AS total_horas 
     FROM contactos_con_empleados  
@@ -135,7 +127,7 @@ df_horas_por_incidente = pd.read_sql("""
 media_horas_incidente = df_horas_por_incidente["total_horas"].mean()
 std_horas_incidente = df_horas_por_incidente["total_horas"].std()
 
-# 6. Horas trabajadas por empleado
+# 5. Horas trabajadas por empleado
 df_horas = pd.read_sql("""
     SELECT id_emp, SUM(tiempo) AS total_horas 
     FROM contactos_con_empleados  
@@ -144,7 +136,15 @@ df_horas = pd.read_sql("""
 min_horas = df_horas["total_horas"].min()
 max_horas = df_horas["total_horas"].max()
 
-# 7. Incidentes atendidos por empleado (NUEVO)
+# 6. Tiempo de resolución (días entre apertura y cierre)
+df_tickets["tiempo_resolucion"] = (
+    pd.to_datetime(df_tickets["fecha_cierre"]) 
+    - pd.to_datetime(df_tickets["fecha_apertura"])
+).dt.days
+min_dias = df_tickets["tiempo_resolucion"].min()
+max_dias = df_tickets["tiempo_resolucion"].max()
+
+# 7. Incidentes atendidos por empleado 
 df_incidentes_empleado = pd.read_sql("""
     SELECT id_emp, COUNT(DISTINCT id_ticket) AS total_incidentes 
     FROM contactos_con_empleados  
@@ -160,14 +160,14 @@ resultados = {
     "Desviación (valoración >=5)": round(std_valoracion, 2),
     "Media (incidentes/cliente)": round(media_incidentes, 2),
     "Desviación (incidentes/cliente)": round(std_incidentes, 2),
-    "Media horas/incidente": round(media_horas_incidente, 2),        # Nuevo
-    "Desviación horas/incidente": round(std_horas_incidente, 2),     # Nuevo
-    "Mínimo días resolución": min_dias,
-    "Máximo días resolución": max_dias,
+    "Media horas/incidente": round(media_horas_incidente, 2),       
+    "Desviación horas/incidente": round(std_horas_incidente, 2),     
     "Mínimo horas/empleado": round(min_horas, 2),
     "Máximo horas/empleado": round(max_horas, 2),
-    "Mínimo incidentes/empleado": min_incidentes_emp,               # Nuevo
-    "Máximo incidentes/empleado": max_incidentes_emp                 # Nuevo
+    "Mínimo días resolución": min_dias,
+    "Máximo días resolución": max_dias,
+    "Mínimo incidentes/empleado": min_incidentes_emp,              
+    "Máximo incidentes/empleado": max_incidentes_emp                 
 }
 
 print("Resultados:")
