@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS tickets_emitidos (
     fecha_cierre TEXT,
     es_mantenimiento INTEGER,
     satisfaccion_cliente INTEGER,
-    tipo_incidencia TEXT,
+    tipo_incidencia INTEGER,
     FOREIGN KEY (cliente) REFERENCES clientes(id_cli),
     FOREIGN KEY (tipo_incidencia) REFERENCES tipos_incidentes(id_inci)
 )
