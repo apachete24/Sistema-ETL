@@ -64,8 +64,12 @@ resultados = {}
             df_fraude.merge(contactos_por_incidente, on='id_ticket'), 
             grupo
         )
+#formato al mostrar resultados
+for nombre, df in resultados.items():
+        print(f"\n---- {nombre} ----")
+        print(df.to_string(index=False))
 
-
+conn.close()
 
 if __name__ == "__main__":
     analizar_fraude_por_agrupaciones()
