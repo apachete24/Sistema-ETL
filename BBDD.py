@@ -10,59 +10,9 @@ with open('datos.json', 'r', encoding='utf-8') as file:
 conn = sqlite3.connect('etl_database.db')
 cursor = conn.cursor()
 
-# Para evitar duplicados de los resultados siempre se borra antes de ejecutar este script
-cursor.execute("DROP TABLE IF EXISTS contactos_con_empleados")
-cursor.execute("DROP TABLE IF EXISTS tickets_emitidos")
-cursor.execute("DROP TABLE IF EXISTS tipos_incidentes")
-cursor.execute("DROP TABLE IF EXISTS empleados")
-cursor.execute("DROP TABLE IF EXISTS clientes")
 
-# Creación de tablas
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS clientes (
-    id_cli TEXT PRIMARY KEY,
-    nombre TEXT,
-    telefono TEXT,
-    provincia TEXT
-)''')
 
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS empleados (
-    id_emp TEXT PRIMARY KEY,
-    nombre TEXT,
-    nivel INTEGER,
-    fecha_contrato TEXT
-)''')
 
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS tipos_incidentes (
-    id_inci TEXT PRIMARY KEY,
-    nombre TEXT
-)''')
-
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS tickets_emitidos (
-    id_ticket INTEGER PRIMARY KEY AUTOINCREMENT,
-    cliente TEXT,
-    fecha_apertura TEXT,
-    fecha_cierre TEXT,
-    es_mantenimiento INTEGER,
-    satisfaccion_cliente INTEGER,
-    tipo_incidencia INTEGER,
-    FOREIGN KEY (cliente) REFERENCES clientes(id_cli),
-    FOREIGN KEY (tipo_incidencia) REFERENCES tipos_incidentes(id_inci)
-)''')
-
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS contactos_con_empleados (
-    id_contacto INTEGER PRIMARY KEY AUTOINCREMENT,
-    id_ticket INTEGER,
-    id_emp TEXT,
-    fecha TEXT,
-    tiempo REAL,
-    FOREIGN KEY (id_ticket) REFERENCES tickets_emitidos(id_ticket),
-    FOREIGN KEY (id_emp) REFERENCES empleados(id_emp)
-)''')
 
 # Inserción de datos en las tablas clientes, empleados y tipos_incidentes
 # Tabla Clientes
