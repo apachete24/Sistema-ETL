@@ -3,16 +3,18 @@ import os
 
 from crearDB import crearDb
 from importarDatos import importarDatos
+from calculosDatos import *
 
 # Cargar variables de entorno
 dotenv.load_dotenv()
 DB_NAME = os.getenv("DB_NAME")
 JSON_FILE = os.getenv("JSON_FILE")
 
-
+# Creacion de la base de datos e importacion de los datos a ella desde el JSON
 conn = crearDb(DB_NAME)
-
 importarDatos(JSON_FILE, conn)
+
+
 
 
 
