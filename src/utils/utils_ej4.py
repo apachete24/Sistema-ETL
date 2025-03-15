@@ -1,6 +1,10 @@
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
+
+ruta = "../static/images/"
 
 def getTiemposData(conn):
 
@@ -37,7 +41,9 @@ def getMediaTiempoMantenimiento(conn):
     plt.ylabel("Días promedio de resolución")
     plt.title("Tiempo medio de resolución de incidentes")
     plt.ylim(0, max(valores) + 2)  # Ajustar el límite del eje Y para mayor claridad
-    plt.show()
+
+    plt.savefig(ruta + "mediaTiempoMantenimiento.png")
+    plt.close()
 
 def getTipoDeIncidente(conn):
 
@@ -59,13 +65,16 @@ def getTipoDeIncidente(conn):
     plt.xlabel("Tipo de incidente")
     plt.ylabel("Días de resolución")
     plt.grid(True, linestyle="--", alpha=0.7)
-    plt.show()
+
+    plt.savefig(ruta + "tipoDeIncidente.png")
+    plt.close()
+
 
 def getClientesCriticos(conn):
 
     query = """
         SELECT cliente, COUNT(*) AS total_incidentes 
-        FROM tickets_emitidos 
+        FROM tickets_emitidos
         WHERE es_mantenimiento = 1 AND tipo_incidencia != '1'
         GROUP BY cliente
         ORDER BY total_incidentes DESC
@@ -83,7 +92,9 @@ def getClientesCriticos(conn):
     plt.xlabel("Cliente")
     plt.ylabel("Total incidentes")
     plt.grid(axis="y", linestyle="--", alpha=0.7)
-    plt.show()
+
+    plt.savefig(ruta + "clientesCriticos.png")
+    plt.close()
 
 def getActuacionesEmpleados(conn):
 
@@ -105,7 +116,9 @@ def getActuacionesEmpleados(conn):
     plt.ylabel("Número de actuaciones")
     plt.xticks(rotation=45)
     plt.grid(axis="y", linestyle="--", alpha=0.7)
-    plt.show()
+
+    plt.savefig(ruta + "actuacionesEmpleados.png")
+    plt.close()
 
 def getActuacionesDiaSemana(conn):
 
@@ -132,4 +145,6 @@ def getActuacionesDiaSemana(conn):
     plt.ylabel("Total actuaciones")
     plt.xticks(rotation=45)
     plt.grid(axis="y", linestyle="--", alpha=0.7)
-    plt.show()
+
+    plt.savefig(ruta + "actuacionesDiaSemana.png")
+    plt.close()
