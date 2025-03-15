@@ -1,6 +1,7 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 
-# EJERCICIO 1
+# EJERCICIO 2
 
 # 1. Número de muestras totales
 def getTotalMuestras(conn):
@@ -87,4 +88,41 @@ def getIncidentesEmpleado(conn):
     return min_incidentes_emp, max_incidentes_emp
 
 
-# EJERCICIO 2
+# EJERCICIO 3
+
+
+# Media de tiempo (apertura-cierre) de los incidentes agrupados por mantenimiento
+def getMediaTiempoMantenimiento(conn):
+    df_tickets = pd.read_sql("SELECT * FROM tickets_emitidos", conn)
+    df_tickets["tiempo_resolucion"] = (
+        pd.to_datetime(df_tickets["fecha_cierre"]) - pd.to_datetime(df_tickets["fecha_apertura"])
+    ).dt.days
+
+    media_mantenimiento = df_tickets[df_tickets["es_mantenimiento"] == 1]["tiempo_resolucion"].mean()
+    media_no_mantenimiento = df_tickets[df_tickets["es_mantenimiento"] == 0]["tiempo_resolucion"].mean()
+
+    return media_mantenimiento, media_no_mantenimiento
+
+
+
+def getClientesCriticos(conn):
+    df_tickets = pd.read_sql("SELECT * FROM tickets_emitidos", conn)
+
+    # Filtrar incidentes de mantenimiento y tipo distinto de 1
+    df_filtrado = df_tickets[(df_tickets["es_mantenimiento"] == 1) & (df_tickets["tipo_incidencia"] != 1)]
+
+    # Contar incidentes por cliente
+    incidentes_por_cliente = df_filtrado.groupby("cliente").size().reset_index(name="num_incidentes")
+
+    # Ordenar y obtener los 5 clientes más críticos
+    top_5_clientes = incidentes_por_cliente.sort_values(by="num_incidentes", ascending=False).head(5)
+
+    # Graficar
+    plt.figure(figsize=(10, 6))
+    plt.bar(top_5_clientes["cliente"], top_5_clientes["num_incidentes"], color='red')
+    plt.title("Top 5 clientes más críticos")
+    plt.xlabel("Cliente")
+    plt.ylabel("Número de incidentes")
+
+    return plt
+
