@@ -126,3 +126,29 @@ def getClientesCriticos(conn):
 
     return plt
 
+
+# Mostrar según el día de la semana el total de actuaciones realizadas en los clientes.
+def getActuacionesPorDia(conn):
+    df_contactos = pd.read_sql("SELECT * FROM contactos_con_empleados", conn)
+
+    # Obtener día de la semana
+    df_contactos["dia_semana"] = pd.to_datetime(df_contactos["fecha"]).dt.day_name()
+
+    # Contar actuaciones por día
+    actuaciones_por_dia = df_contactos.groupby("dia_semana").size().reset_index(name="num_actuaciones")
+
+    # Ordenar los días de la semana
+    dias_semana = [
+        "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+    ]
+    actuaciones_por_dia["dia_semana"] = pd.Categorical(actuaciones_por_dia["dia_semana"], categories=dias_semana, ordered=True)
+    actuaciones_por_dia = actuaciones_por_dia.sort_values("dia_semana")
+
+    # Graficar
+    plt.figure(figsize=(10, 6))
+    plt.plot(actuaciones_por_dia["dia_semana"], actuaciones_por_dia["num_actuaciones"], marker='o')
+    plt.title("Actuaciones por día de la semana")
+    plt.xlabel("Día de la semana")
+    plt.ylabel("Número de actuaciones")
+
+    return plt

@@ -14,8 +14,8 @@ JSON_FILE = os.getenv("JSON_FILE")
 conn = crearDb(DB_NAME)
 importarDatos(JSON_FILE, conn)
 
-getClientesCriticos(conn).show()
 
+getActuacionesPorDia(conn).show()
 
 
 
