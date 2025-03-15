@@ -114,10 +114,10 @@ def getClientesCriticos(conn):
     # Contar incidentes por cliente
     incidentes_por_cliente = df_filtrado.groupby("cliente").size().reset_index(name="num_incidentes")
 
-    # Ordenar y obtener los 5 clientes más críticos
+    # Obtener los 5 clientes más críticos
     top_5_clientes = incidentes_por_cliente.sort_values(by="num_incidentes", ascending=False).head(5)
 
-    # Graficar
+    # Grafico
     plt.figure(figsize=(10, 6))
     plt.bar(top_5_clientes["cliente"], top_5_clientes["num_incidentes"], color='red')
     plt.title("Top 5 clientes más críticos")
