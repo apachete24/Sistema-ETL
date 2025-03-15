@@ -65,7 +65,10 @@ def ejecutar_ejercicio_3():
 def ejecutar_ejercicio_4(conn):
 
     getMediaTiempoMantenimiento(conn)
-
+    getTipoDeIncidente(conn)
+    getClientesCriticos(conn)
+    getActuacionesEmpleados(conn)
+    getActuacionesDiaSemana(conn)
 
 if __name__ == '__main__':
 
