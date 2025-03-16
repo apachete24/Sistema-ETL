@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ruta_absoluta = "../static/img"
+ruta_absoluta = "../static/img/"
 
 def getTiemposData(conn):
 
