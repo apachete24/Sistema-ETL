@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block title %}Ejercicio 3{% endblock %}
+
+{% block content %}
+    <h1 class="title">Ejercicio 3 - Análisis de Fraude</h1>
+
+    {% for agrupacion, tabla in resultados.items() %}
+    <div class="analysis-section">
+        <h2 class="subtitle">{{ agrupacion }}</h2>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    {% for columna in tabla.columns %}
+                    <th>{{ columna }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for _, fila in tabla.iterrows() %}
+                <tr>
+                    {% for valor in fila %}
+                    <td>{{ valor }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endfor %}
+{% endblock %}

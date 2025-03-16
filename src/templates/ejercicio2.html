@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+
+{% block title %}Ejercicio 2{% endblock %}
+
+{% block content %}
+    <h1 class="title">Ejercicio 2 - Métricas Generales</h1>
+    
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <h3>Muestras Totales</h3>
+            <p class="metric-value">{{ data.total_muestras }}</p>
+        </div>
+        
+        <div class="metric-card">
+            <h3>Valoración Cliente (≥5)</h3>
+            <div class="metric-subgrid">
+                <div>Media: {{ data.media_valoracion }}</div>
+                <div>Desviación: {{ data.std_valoracion }}</div>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <h3>Incidentes por Cliente</h3>
+            <div class="metric-subgrid">
+                <div>Media: {{ data.media_incidentes }}</div>
+                <div>Desviación: {{ data.std_incidentes }}</div>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <h3>Horas por Incidente</h3>
+            <div class="metric-subgrid">
+                <div>Media: {{ data.media_horas }}</div>
+                <div>Desviación: {{ data.std_horas }}</div>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <h3>Horas Trabajadas</h3>
+            <div class="metric-subgrid">
+                <div>Mínimo: {{ data.min_horas }}</div>
+                <div>Máximo: {{ data.max_horas }}</div>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <h3>Tiempo Resolución</h3>
+            <div class="metric-subgrid">
+                <div>Mínimo: {{ data.min_dias }} días</div>
+                <div>Máximo: {{ data.max_dias }} días</div>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <h3>Incidentes por Empleado</h3>
+            <div class="metric-subgrid">
+                <div>Mínimo: {{ data.min_incidentes_emp }}</div>
+                <div>Máximo: {{ data.max_incidentes_emp }}</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
