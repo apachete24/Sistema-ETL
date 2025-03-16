@@ -10,9 +10,11 @@ from utils_ej2 import *
 from utils_ej3 import analizar_fraude_por_agrupaciones
 from utils_ej4 import *
 
-app = Flask(__name__, static_folder=os.path.abspath("../static"))
-DB_NAME = "../files/etl_database.db"
-JSON_FILE = "../files/datos.json"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DB_NAME = os.path.join(BASE_DIR, "files", "etl_database.db")
+JSON_FILE = os.path.join(BASE_DIR, "files", "datos.json")
+
+app = Flask(__name__, static_folder="../static",template_folder=os.path.join(BASE_DIR, "src", "templates"))
 
 def get_db_connection():
     conn = sqlite3.connect(DB_NAME)
@@ -81,13 +83,8 @@ def index():
     return render_template('index.html')
 
 if __name__ == '__main__':
-    # Inicializar DB solo si no existe
-    try:
-        conn = sqlite3.connect(DB_NAME)
-    except sqlite3.OperationalError:
-        crearDb(DB_NAME)
+    if not os.path.exists(DB_NAME):
+        conn = crearDb(DB_NAME)
         importarDatos(JSON_FILE, conn)
-    finally:
-        if conn:
-            conn.close()
+        conn.close()
     app.run(debug=True, port=5000)

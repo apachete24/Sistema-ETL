@@ -2,9 +2,10 @@ import pandas as pd
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import seaborn as sns
+import os
 
-ruta = "../static/images/"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ruta_absoluta = "../static/img"
 
 def getTiemposData(conn):
 
@@ -42,7 +43,7 @@ def getMediaTiempoMantenimiento(conn):
     plt.title("Tiempo medio de resolución de incidentes")
     plt.ylim(0, max(valores) + 2)  # Ajustar el límite del eje Y para mayor claridad
 
-    plt.savefig(ruta + "mediaTiempoMantenimiento.png")
+    plt.savefig(ruta_absoluta + "mediaTiempoMantenimiento.png")
     plt.close()
 
 def getTipoDeIncidente(conn):
@@ -66,7 +67,7 @@ def getTipoDeIncidente(conn):
     plt.ylabel("Días de resolución")
     plt.grid(True, linestyle="--", alpha=0.7)
 
-    plt.savefig(ruta + "tipoDeIncidente.png")
+    plt.savefig(os.path.join(ruta_absoluta, "tipoDeIncidente.png"))
     plt.close()
 
 
@@ -93,7 +94,7 @@ def getClientesCriticos(conn):
     plt.ylabel("Total incidentes")
     plt.grid(axis="y", linestyle="--", alpha=0.7)
 
-    plt.savefig(ruta + "clientesCriticos.png")
+    plt.savefig(os.path.join(ruta_absoluta, "clientesCriticos.png"))
     plt.close()
 
 def getActuacionesEmpleados(conn):
@@ -117,7 +118,7 @@ def getActuacionesEmpleados(conn):
     plt.xticks(rotation=45)
     plt.grid(axis="y", linestyle="--", alpha=0.7)
 
-    plt.savefig(ruta + "actuacionesEmpleados.png")
+    plt.savefig(os.path.join(ruta_absoluta, "actuacionesEmpleados.png"))
     plt.close()
 
 def getActuacionesDiaSemana(conn):
@@ -146,5 +147,5 @@ def getActuacionesDiaSemana(conn):
     plt.xticks(rotation=45)
     plt.grid(axis="y", linestyle="--", alpha=0.7)
 
-    plt.savefig(ruta + "actuacionesDiaSemana.png")
+    plt.savefig(os.path.join(ruta_absoluta, "actuacionesDiaSemana.png"))
     plt.close()
